@@ -52,6 +52,7 @@ class TestS2N(unittest.TestCase):
             "there are 2003984 people living in this city")
         self.assertEqual(s2n.string_to_nums("i am nineteen years old"), "i am 19 years old")
         self.assertEqual(s2n.string_to_nums('the number nine point nine nine nine is almost ten'), 'the number 9.999 is almost 10')
+        self.assertEqual(s2n.string_to_nums('there are two men and two women standing in line'), 'there are 2 men and 2 women standing in line')
         # need to add support for separate numbers in sequence
         self.assertEqual(s2n.string_to_nums('one two three four five'), '1')
 

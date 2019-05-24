@@ -107,8 +107,12 @@ def string_to_nums(number_sentence):
             else:
                 if len(clean_number_sequence) > 0:
                     clean_numbers.append(clean_number_sequence)
-                clean_number_sequence = []
+                    clean_number_sequence = []
                 clean_number_sequence.append(word)
+        elif word != 'and':
+            if len(clean_number_sequence) > 0:
+                clean_numbers.append(clean_number_sequence)
+                clean_number_sequence = []
     if len(clean_number_sequence) > 0:
         clean_numbers.append(clean_number_sequence)
 
