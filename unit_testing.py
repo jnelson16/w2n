@@ -1,5 +1,5 @@
 import unittest
-from word2number import w2n
+from word2number import s2n, w2n
 
 
 class TestW2N(unittest.TestCase):
@@ -43,6 +43,22 @@ class TestW2N(unittest.TestCase):
         self.assertRaises(ValueError, w2n.word_to_num, 'thousand million')
         self.assertRaises(ValueError, w2n.word_to_num, 'one billion point two million twenty three thousand and forty nine point two three six nine')
         self.assertRaises(ValueError, w2n.word_to_num, 112)
+
+
+class TestS2N(unittest.TestCase):
+    def test_positives(self):
+        self.assertEqual(s2n.string_to_nums(
+            "there are two million three thousand nine hundred and eighty four people living in this city"),
+            "there are 2003984 people living in this city")
+        self.assertEqual(s2n.string_to_nums("i am nineteen years old"), "i am 19 years old")
+        self.assertEqual(s2n.string_to_nums('the number nine point nine nine nine is almost ten'), 'the number 9.999 is almost 10')
+        # need to add support for separate numbers in sequence
+        self.assertEqual(s2n.string_to_nums('one two three four five'), '1')
+
+    def test_negatives(self):
+        # potentially allow digits to return full string instead of raising ValueError
+        self.assertRaises(ValueError, s2n.string_to_nums, 'this book is 112 pages long')
+
 
 if __name__ == '__main__':
     unittest.main()

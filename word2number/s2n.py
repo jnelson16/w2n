@@ -44,6 +44,8 @@ decimal_words = ['zero', 'one', 'two', 'three', 'four',
 def number_formation(number_words):
     numbers = []
     for number_word in number_words:
+        if number_word == 'and':
+            continue
         numbers.append(american_number_system[number_word])
     if len(numbers) == 4:
         return (numbers[0] * numbers[1]) + numbers[2] + numbers[3]
@@ -91,52 +93,50 @@ def string_to_nums(number_sentence):
     number_sentence = number_sentence.replace('-', ' ')
     number_sentence = number_sentence.lower()  # converting input to lowercase
 
-    if(number_sentence.isdigit()):  # return the number if user enters a number string
-        return int(number_sentence)
-
     split_words = number_sentence.strip().split()  # strip extra spaces and split sentence into words
 
     clean_numbers = []
     clean_number_sequence = []
-    clean_decimal_numbers = []
-    last_match = None
 
-    # removing and, & etc.
     for i, word in enumerate(split_words):
         if word in american_number_system:
-            if last_match == i - 1:
+            if split_words[i - 1] in american_number_system or split_words[i - 1] == 'and':
+                if split_words[i - 1] == 'and':
+                    clean_number_sequence.append('and')
                 clean_number_sequence.append(word)
             else:
-                clean_numbers.append(clean_number_sequence)
+                if len(clean_number_sequence) > 0:
+                    clean_numbers.append(clean_number_sequence)
                 clean_number_sequence = []
                 clean_number_sequence.append(word)
-            last_match = i
-    clean_numbers.append(clean_number_sequence)
-    clean_numbers = clean_numbers[1:]
+    if len(clean_number_sequence) > 0:
+        clean_numbers.append(clean_number_sequence)
 
     # Error message if the user enters invalid input!
     if len(clean_numbers) == 0:
         raise ValueError("No valid number words found! Please enter a valid number word (eg. two million twenty three thousand and forty nine)") 
 
-    # Error if user enters million,billion, thousand or decimal point twice
-    if clean_numbers.count('thousand') > 1 or clean_numbers.count('million') > 1 or clean_numbers.count('billion') > 1 or clean_numbers.count('point')> 1:
-        raise ValueError("Redundant number word! Please enter a valid number word (eg. two million twenty three thousand and forty nine)")
-
-    # separate decimal part of number (if exists)
-    if clean_numbers.count('point') == 1:
-        clean_decimal_numbers = clean_numbers[clean_numbers.index('point')+1:]
-        clean_numbers = clean_numbers[:clean_numbers.index('point')]
-
-    billion_index = clean_numbers.index('billion') if 'billion' in clean_numbers else -1
-    million_index = clean_numbers.index('million') if 'million' in clean_numbers else -1
-    thousand_index = clean_numbers.index('thousand') if 'thousand' in clean_numbers else -1
-
-    if (thousand_index > -1 and (thousand_index < million_index or thousand_index < billion_index)) or (million_index>-1 and million_index < billion_index):
-        raise ValueError("Malformed number! Please enter a valid number word (eg. two million twenty three thousand and forty nine)")
-
     total_sums = []
 
     for clean_number in clean_numbers:
+        clean_decimal_number = []
+        
+        # Error if user enters million,billion, thousand or decimal point twice
+        if clean_number.count('thousand') > 1 or clean_number.count('million') > 1 or clean_number.count('billion') > 1 or clean_number.count('point')> 1:
+            raise ValueError("Redundant number word! Please enter a valid number word (eg. two million twenty three thousand and forty nine)")
+        
+        # separate decimal part of number (if exists)
+        if clean_number.count('point') == 1:
+            clean_decimal_number = clean_number[clean_number.index('point')+1:]
+            clean_number = clean_number[:clean_number.index('point')]
+        
+        billion_index = clean_number.index('billion') if 'billion' in clean_number else -1
+        million_index = clean_number.index('million') if 'million' in clean_number else -1
+        thousand_index = clean_number.index('thousand') if 'thousand' in clean_number else -1
+        
+        if (thousand_index > -1 and (thousand_index < million_index or thousand_index < billion_index)) or (million_index>-1 and million_index < billion_index):
+            raise ValueError("Malformed number! Please enter a valid number word (eg. two million twenty three thousand and forty nine)")
+        
         total_sum = 0
         if len(clean_number) > 0:
             # hack for now, better way TODO
@@ -177,16 +177,16 @@ def string_to_nums(number_sentence):
                 else:
                     hundreds = 0
                 total_sum += hundreds
-            
-    if len(clean_decimal_numbers) > 0:
-        decimal_sum = get_decimal_sum(clean_decimal_numbers)
-        total_sum += decimal_sum
+                
+        if len(clean_decimal_number) > 0:
+            decimal_sum = get_decimal_sum(clean_decimal_number)
+            total_sum += decimal_sum
 
-    total_sums.append(total_sum)
+        total_sums.append(total_sum)
 
     clean_string = number_sentence
 
     for clean_number, total_sum in zip(clean_numbers, total_sums):
-        clean_string.replace(' '.join(clean_number), str(total_sum))
+        clean_string = clean_string.replace(' '.join(clean_number), str(total_sum))
     
     return clean_string
